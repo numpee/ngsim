@@ -39,8 +39,10 @@ def animate(i):
     ax.set_ylim([0,1500])
     ax.scatter(x,y, s = 15)
     for i, txt in enumerate(names):
-        ax.annotate(txt, (x[i],y[i]))
+        id_x = int(x[i])
+        id_y = int(y[i])
+        ax.annotate(txt, (id_x,id_y))
 
 
-ani = animation.FuncAnimation(fig,animate,frames = range(2,30000), interval=100)
+ani = animation.FuncAnimation(fig,animate,frames = range(2,30000), interval=50)
 plt.show()
