@@ -21,10 +21,11 @@ for i in range(int(min(sorted_np[:,1])),int(max(sorted_np[:,1]))):
 
 #fig, ax = plt.subplots()
 img = plt.imread("ASPeachtree.jpg")
-# fig = plt.figure(figsize=(7,7))
+fig = plt.figure(figsize=(7,7))
 #ax = fig.add_axes([0,0,1,1],frameon=False)
-# ax = fig.add_subplot(1,1,1)
-fig, ax = plt.subplots()
+ax = fig.add_subplot(1,2,1)
+ax1 = fig.add_subplot(1,2,2)
+#fig, ax = plt.subplots()
 
 
 def animate(i):
@@ -32,16 +33,23 @@ def animate(i):
     y = sliced[i][:,3]
     names = sliced[i][:,0]
     ax.clear()
+    ax1.clear()
     #ax.imshow(img, extent = [-300,300,0,1500])
     ax.set_autoscaley_on(False)
     ax.set_autoscalex_on(False)
     ax.set_xlim([-300,300])
     ax.set_ylim([0,1500])
-    ax.scatter(x,y, s = 15)
+    ax.scatter(x,y, s = 10)
+
+    ax1.set_autoscaley_on(False)
+    ax1.set_autoscalex_on(False)
+    ax1.set_xlim([-100,100])
+    ax1.set_ylim([0,600])
+    ax1.scatter(x,y, s = 50, marker = "s")
+
     for i, txt in enumerate(names):
-        id_x = int(x[i])
-        id_y = int(y[i])
-        ax.annotate(txt, (id_x,id_y))
+        ax.annotate(int(txt), (int(x[i]),int(y[i])), fontsize=8)
+        ax1.annotate(int(txt), (int(x[i]),int(y[i])), fontsize=10)
 
 
 ani = animation.FuncAnimation(fig,animate,frames = range(2,30000), interval=50)
