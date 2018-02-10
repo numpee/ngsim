@@ -28,12 +28,8 @@ ax = fig.add_subplot(2,1,1)
 ax1 = fig.add_subplot(2,1,2)
 #fig, ax = plt.subplots()
 
-patch = patches.Rectangle((0, 0), 0, 0, fc='y', angle=30)
+# patch = patches.Rectangle((0, 0), 0, 0, fc='y', angle=30)
 
-# def init():
-#     for
-#     ax.add_patch(patch)
-#     return patch,
 
 def animate(i):
     x = sliced[i][:,2]
@@ -51,18 +47,18 @@ def animate(i):
     ax1.set_autoscaley_on(False)
     ax1.set_autoscalex_on(False)
     ax1.set_xlim([0,600])
-    ax1.set_ylim([0,100])
+    ax1.set_ylim([0,70])
+    ax1.scatter(y,x,s=10)
+    patches = []
     # ax1.scatter(y,x, s = 50, marker = "s")
     for x_cent, y_cent in zip(x,y):
         print(x_cent, y_cent)
-        patch.center = (x_cent,y_cent)
-        ax1.add_patch(patch)
+        patches.append(ax1.add_patch(plt.Rectangle((y_cent, x_cent), 4, 2, fill=False, edgecolor="blue")))
 
     for i, txt in enumerate(names):
-        ax.annotate(int(txt), (int(y[i]),int(x[i])), fontsize=8)
-        ax1.annotate(int(txt), (int(y[i]),int(x[i])), fontsize=10)
-
+         ax1.annotate(int(txt), (int(y[i]),int(x[i])), fontsize=10)
+    return patches
 
 # transcribed at 100ms intervalS
-ani = animation.FuncAnimation(fig,animate,frames = range(2,30000), interval=100)
+ani = animation.FuncAnimation(fig, animate, frames = range(2,30000), interval=100, blit=True)
 plt.show()
