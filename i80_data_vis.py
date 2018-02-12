@@ -7,12 +7,15 @@ import math
 
 # Units are in FEET!
 
+#Obtain File in CSV, using Pandas
 filepath = 'trajectories-0400-0415.csv'
 data = pd.read_csv(filepath)
+
+#Keep useful data, sort by Frame ID. Graphing is done by frame
 data_cut = data[['Vehicle_ID', 'Frame_ID', 'Local_X', 'Local_Y','Lane_ID','Angle', 'v_Length', 'v_Width']]
 sorted_frame = data_cut.sort_values(by=['Frame_ID'])
 sorted_np = sorted_frame.values
-sorted_np = sorted_np[1000:30000,:]
+sorted_np = sorted_np[1000:30000,:]         # Omit data upto 100*1000ms = 100s
 
 # init array of sliced values, by frame number
 sliced = []
@@ -21,18 +24,19 @@ sliced = []
 for i in range(int(min(sorted_np[:,1])),int(max(sorted_np[:,1]))):
     sliced.append(sorted_np[sorted_np[:,1]==i])
 
-#fig, ax = plt.subplots()
+# add image? not necessary
 img = plt.imread("ASPeachtree.jpg")
+# set figure size
 fig = plt.figure(figsize=(18,6))
 #ax = fig.add_axes([0,0,1,1],frameon=False)
 # ax = fig.add_subplot(2,1,2)
+
+#add subplot
 ax1 = fig.add_subplot(1,1,1)
-#fig, ax = plt.subplots()
 
-# patch = patches.Rectangle((0, 0), 0, 0, fc='y', angle=30)
-
-
+# Animation function
 def animate(i):
+    # Slice relevant information by frame number
     x = sliced[i][:,2]
     y = sliced[i][:,3]
     angles = sliced[i][:,5]
@@ -50,6 +54,7 @@ def animate(i):
     # ax.set_ylim([0,100])
     # ax.scatter(y,x, s = 10)
 
+    # set autoscale off, set x,y axis
     ax1.set_autoscaley_on(False)
     ax1.set_autoscalex_on(False)
     ax1.set_xlim([200,400])
@@ -59,6 +64,8 @@ def animate(i):
     patches1 = []
     lane_color = ["white", "red", "orange", "yellow", "green", "blue", "black", "pink"]
     # ax1.scatter(y,x, s = 50, marker = "s")
+
+    # unzip by category, create rectangle for each car by frame
     for x_cent, y_cent,car_angles, lane, vlength, vwidth in zip(x,y,angles,lane_label,vehicle_length, vehicle_width):
         print(x_cent, y_cent, car_angles)
         if car_angles<25 and car_angles>-25:
@@ -78,6 +85,6 @@ def animate(i):
     return patches
 
 
-# transcribed at 100ms intervalS
+# Animate at interval of 100ms
 ani = animation.FuncAnimation(fig, animate, frames = range(2,30000), interval=100, blit=True)
 plt.show()
