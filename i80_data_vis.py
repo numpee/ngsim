@@ -12,7 +12,7 @@ filepath = 'trajectories-0400-0415.csv'
 data = pd.read_csv(filepath)
 
 #Keep useful data, sort by Frame ID. Graphing is done by frame
-data_cut = data[['Vehicle_ID', 'Frame_ID', 'Local_X', 'Local_Y','Lane_ID','Angle', 'v_Length', 'v_Width']]
+data_cut = data[['Vehicle_ID', 'Frame_ID', 'Local_X', 'Local_Y','Lane_ID', 'v_Length', 'v_Width']]
 sorted_frame = data_cut.sort_values(by=['Frame_ID'])
 sorted_np = sorted_frame.values
 sorted_np = sorted_np[1000:30000,:]         # Omit data upto 100*1000ms = 100s
@@ -39,14 +39,19 @@ def animate(i):
     # Slice relevant information by frame number
     x = sliced[i][:,2]
     y = sliced[i][:,3]
-    angles = sliced[i][:,5]
     names = sliced[i][:,0]
     lane_label = sliced[i][:,4]
-    vehicle_length = sliced[i][:,6]
-    vehicle_width = sliced[i][:,7]
+    vehicle_length = sliced[i][:,5]
+    vehicle_width = sliced[i][:,6]
 
     # ax.clear()
     ax1.clear()
+    plt.axhline(y=12, color='black', linestyle = '--')
+    plt.axhline(y=24, color='black', linestyle = '--')
+    plt.axhline(y=36, color='black', linestyle = '--')
+    plt.axhline(y=48, color='black', linestyle = '--')
+    plt.axhline(y=60, color='black', linestyle = '--')
+    plt.axhline(y=72, color='black', linestyle = '--')
     #ax.imshow(img, extent = [-300,300,0,1500])
     # ax.set_autoscaley_on(False)
     # ax.set_autoscalex_on(False)
@@ -57,8 +62,8 @@ def animate(i):
     # set autoscale off, set x,y axis
     ax1.set_autoscaley_on(False)
     ax1.set_autoscalex_on(False)
-    ax1.set_xlim([200,400])
-    ax1.set_ylim([0,100])
+    ax1.set_xlim([200,440])
+    ax1.set_ylim([0,80])
     # ax1.scatter(y,x,s=10)
     patches = []
     patches1 = []
@@ -66,14 +71,12 @@ def animate(i):
     # ax1.scatter(y,x, s = 50, marker = "s")
 
     # unzip by category, create rectangle for each car by frame
-    for x_cent, y_cent,car_angles, lane, vlength, vwidth in zip(x,y,angles,lane_label,vehicle_length, vehicle_width):
-        print(x_cent, y_cent, car_angles)
-        if car_angles<25 and car_angles>-25:
-            patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlength/2, x_cent-vwidth/2), vlength, vwidth,
-                        fill=False, angle=car_angles, linewidth = 2, edgecolor = lane_color[int(lane)])))
-        else:
-            patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlength/2, x_cent-vwidth/2), vlength, vwidth,
-                        fill=False, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)])))
+    for x_cent, y_cent, lane, vlength, vwidth in zip(x,y,lane_label,vehicle_length, vehicle_width):
+        print(x_cent, y_cent)
+        vlen = vlength*0.75
+        vwid = vwidth*0.75
+        patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-vwid/2), vlen, vwid,
+                        fill=True, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)], color = lane_color[int(lane)])))
 
         #patches1.append(ax.add_patch(plt.Rectangle((y_cent, x_cent), 3, 2, fill=False, edgecolor="blue",label=lane_label)))
     # for i, txt in enumerate(names):
@@ -87,4 +90,5 @@ def animate(i):
 
 # Animate at interval of 100ms
 ani = animation.FuncAnimation(fig, animate, frames = range(2,30000), interval=100, blit=True)
+
 plt.show()
