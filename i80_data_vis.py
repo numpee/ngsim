@@ -12,7 +12,7 @@ filepath = 'trajectories-0400-0415.csv'
 data = pd.read_csv(filepath)
 
 #Keep useful data, sort by Frame ID. Graphing is done by frame
-data_cut = data[['Vehicle_ID', 'Frame_ID', 'Local_X', 'Local_Y','Lane_ID', 'v_Length', 'v_Width']]
+data_cut = data[['Vehicle_ID', 'Frame_ID', 'Local_X', 'Local_Y','Lane_ID', 'v_Length', 'v_Width', 'Angle']]
 sorted_frame = data_cut.sort_values(by=['Frame_ID'])
 sorted_np = sorted_frame.values
 sorted_np = sorted_np[1000:30000,:]         # Omit data upto 100*1000ms = 100s
