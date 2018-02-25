@@ -9,7 +9,7 @@ data = pd.read_csv(filepath)
 data = data[['Vehicle_ID', 'Frame_ID', 'Local_X',
         'Local_Y','v_Vel', 'Lane_ID']]
 data_np = data.values.astype(np.float32)
-num_data = 321836
+num_data = 10000
 data_np = data_np[0:num_data]
 
 sliced = []
@@ -83,27 +83,27 @@ for i in range(0,num_data):
     if not infront_same.empty:
         index1 = infront_same['y_position'].idxmin()
         di1 = features['y_position'][index1]-vehicle_y
-        vi1 = features['velocity'][index1]
+        ve1 = features['velocity'][index1]
     if not behind_same.empty:
         index2 = behind_same['y_position'].idxmax()
         di2 = vehicle_y-features['y_position'][index2]
-        vi2 = features['velocity'][index2]
+        ve2 = features['velocity'][index2]
     if not infront_higher.empty:
-        index3 = infront_higher['y_position'].idxmin()
-        di3 = abs(features['y_position'][index3]-vehicle_y)
-        vi3 = features['velocity'][index3]
-    if not behind_higher.empty:
-        index4 = behind_higher['y_position'].idxmax()
-        di4 = abs(features['y_position'][index4]-vehicle_y)
-        vi4 = features['velocity'][index4]
-    if not infront_lower.empty:
-        index5 = infront_lower['y_position'].idxmin()
+        index5 = infront_higher['y_position'].idxmin()
         di5 = abs(features['y_position'][index5]-vehicle_y)
-        vi5 = features['velocity'][index5]
-    if not behind_lower.empty:
-        index6 = behind_lower['y_position'].idxmax()
+        ve5 = features['velocity'][index5]
+    if not behind_higher.empty:
+        index6 = behind_higher['y_position'].idxmax()
         di6 = abs(features['y_position'][index6]-vehicle_y)
-        vi6 = features['velocity'][index6]
+        ve6 = features['velocity'][index6]
+    if not infront_lower.empty:
+        index3 = infront_lower['y_position'].idxmin()
+        di3 = abs(features['y_position'][index3]-vehicle_y)
+        ve3 = features['velocity'][index3]
+    if not behind_lower.empty:
+        index4= behind_lower['y_position'].idxmax()
+        di4 = abs(features['y_position'][index4]-vehicle_y)
+        ve4 = features['velocity'][index4]
     d1.append(di1); d2.append(di2); d3.append(di3); d4.append(di4); d5.append(di5); d6.append(di6);
     v1.append(ve1); v2.append(ve2); v3.append(ve3); v4.append(ve4); v5.append(ve5); v6.append(ve6);
     
