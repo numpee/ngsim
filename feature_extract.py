@@ -9,7 +9,8 @@ data = pd.read_csv(filepath)
 data = data[['Vehicle_ID', 'Frame_ID', 'Local_X',
         'Local_Y','v_Vel', 'Lane_ID']]
 data_np = data.values.astype(np.float32)
-num_data = 10000
+#num_data = 30000
+num_data = len(data_np)
 data_np = data_np[0:num_data]
 
 sliced = []
@@ -38,19 +39,19 @@ for z in range(0,len(sliced)):
             dx.append(delta_x)
             dy.append(delta_y)
             theta.append(math.atan2(delta_x,delta_y)) #in radians, y=inf x=0 is 0 rad
-    # add to total data set. Technically, can be done by extracting from data set, but 
+    # add to total data set. Technically, can be done by extracting from data set, but
     # there may be indexing issues (number of data points)
     x_p = np.append(x_p, x_pos)
     y_p = np.append(y_p, y_pos)
     v = np.append(v, vel)
     lane_num = np.append(lane_num, lane)
-    
-    
+
+
 # now concatenate
 
 features = pd.DataFrame({'x_position': [], 'y_position': [], 'theta': [], 'lane': []})
 features = features.assign(vehicle_id = data['Vehicle_ID'], frame = data_np[:,1],
-                           x_position = x_p, y_position = y_p, velocity = v, lane = lane_num, 
+                           x_position = x_p, y_position = y_p, velocity = v, lane = lane_num,
                            theta = theta, d0=d0)
 
 '''Now we must iterate through the whole list to find d0~d6 and v0~v6. Could be more efficient to
@@ -65,9 +66,9 @@ for i in range(0,num_data):
     vehicle_y = y_p[i]
     frame = data_np[i,1]
     lane = lane_num[i]
-    
+
     # extract all cars infront and behind current car at that frame
-    infront = features.loc[(features['frame']==frame) & (features['y_position']>vehicle_y), 
+    infront = features.loc[(features['frame']==frame) & (features['y_position']>vehicle_y),
                            ['x_position','y_position', 'velocity', 'lane']]
     behind = features.loc[(features['frame']==frame) & (features['y_position']<vehicle_y),
                           ['x_position','y_position', 'velocity', 'lane']]
@@ -78,7 +79,7 @@ for i in range(0,num_data):
     behind_higher = behind.loc[(behind['lane']==lane+1)]
     infront_lower = infront.loc[(infront['lane']==lane-1)]
     behind_lower = behind.loc[(behind['lane']==lane-1)]
-    
+
     # extract features now
     if not infront_same.empty:
         index1 = infront_same['y_position'].idxmin()
@@ -106,7 +107,7 @@ for i in range(0,num_data):
         ve4 = features['velocity'][index4]
     d1.append(di1); d2.append(di2); d3.append(di3); d4.append(di4); d5.append(di5); d6.append(di6);
     v1.append(ve1); v2.append(ve2); v3.append(ve3); v4.append(ve4); v5.append(ve5); v6.append(ve6);
-    
+
     #debugging
     if i%100 ==0:
         print('Currently at i = {}'.format(i))
