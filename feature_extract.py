@@ -59,8 +59,9 @@ sort by frame first, but then it becomes harder to add back into data '''
 
 d1, d2, d3, d4, d5, d6, v1,v2,v3,v4,v5,v6 = ([] for i in range(12))
 for i in range(0,num_data):
-    # init values as zero
-    di1, di2, di3, di4, di5, di6, ve1, ve2, ve3, ve4, ve5, ve6 = (0 for f in range(12))
+    # init values behind as zero, infront as 1000
+    ve2, ve4, ve6 = (0 for f in range(3))
+    di1, di2, di3, di4, di5, di6, ve1, ve3, ve5 = (1000 for n in range(9))
     #obtain relevant data
     vehicle_x = x_p[i]
     vehicle_y = y_p[i]
@@ -108,9 +109,9 @@ for i in range(0,num_data):
     d1.append(di1); d2.append(di2); d3.append(di3); d4.append(di4); d5.append(di5); d6.append(di6);
     v1.append(ve1); v2.append(ve2); v3.append(ve3); v4.append(ve4); v5.append(ve5); v6.append(ve6);
 
-    #debugging
+    #track progress
     if i%100 ==0:
         print('Currently at i = {}'.format(i))
 
 features= features.assign(d1 = d1, d2=d2,d3=d3,d4=d4,d5=d5,d6=d6,v1=v1,v2=v2,v3=v3,v4=v4,v5=v5,v6=v6)
-features.to_csv('features.csv')
+features.to_csv('features_redone.csv')
