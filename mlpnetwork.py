@@ -22,7 +22,7 @@ n_hidden2 = 128
 n_input = 13        # 15 inputs!
 n_output = 2        # velocity and theta
 batch_size = 128
-lr = 0.01
+lr = 0.005
 
 X = tf.placeholder(tf.float32, [None,n_input])
 Y = tf.placeholder(tf.float32, [None, n_output])
@@ -62,7 +62,7 @@ init = tf.global_variables_initializer()
 with tf.Session() as sess:
     sess.run(init)
     
-    iterations = 1000
+    iterations = 3000
     epoch = 100
     for i in range(epoch):
         for n in range(iterations):
