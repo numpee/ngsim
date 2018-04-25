@@ -26,7 +26,7 @@ filepath = 'trajectories-0400-0415.csv'
 data = pd.read_csv(filepath)
 
 #Keep useful data, sort by Frame ID. Graphing is done by frame
-data_cut = data[['Vehicle_ID', 'Frame_ID', 'Local_X', 'Local_Y','Lane_ID', 'v_Length', 'v_Width', 'Angle']]
+data_cut = data[['Vehicle_ID', 'Frame_ID', 'Local_X', 'Local_Y','Lane_ID', 'v_Length', 'v_Width']
 
 #reduce size
 data_cut = data_cut.loc[data_cut['Vehicle_ID']%2!=0]
