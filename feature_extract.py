@@ -75,9 +75,9 @@ features = features.assign(vehicle_id = data['Vehicle_ID'], frame = data_np[:,1]
 sort by frame first, but then it becomes harder to add back into data '''
 
 # create empty lists for variables
-d1, d2, d3, d4, d5, d6, v1,v2,v3,v4,v5,v6 = ([] for i in range(12))
+d1, d2, d3, d4, d5, d6, v1,v2,v3,v4,v5,v6 = ([] for i in range(12))# iterate through whole list
 
-# iterate through whole list
+
 for i in range(0,num_data):
     # init values behind as zero, infront as 1000
     ve2, ve4, ve6 = (0 for f in range(3))
