@@ -158,7 +158,7 @@ fig = plt.figure(figsize=(27,3))
 ax1 = fig.add_subplot(1,1,1)
 count = 0
 myvehicle_x_pos = 220
-myvehicle_y_pos = 20
+myvehicle_y_pos = 32
 myvehicle_vel = 40
 myvehicle_theta = 0
 myvehicle_lane = currentLane(myvehicle_y_pos)
