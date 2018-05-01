@@ -201,8 +201,8 @@ def animate(i):
     ax1.clear()
     x_lines = [0,421]
     y_lines = [73,73]
-    x_lines1 = [421,0]
-    y_lines1 = [73+6.6, 73+21]
+    x_lines1 = [0,421]
+    y_lines1 = [73+21, 73+6.6]
     plt.plot(x_lines, y_lines, '-w', LineWidth=1.5)
     # x_lines1 = [0,834]
     # y_lines1 = [73+38,73]
@@ -240,7 +240,11 @@ def animate(i):
     ax1.set_autoscalex_on(True)
     ax1.set_xlim([0,1650])
     ax1.set_ylim([-10,100])
-    ax1.set_facecolor('gray')
+    ax1.set_facecolor('black')
+    ax1.fill_between(x_lines, y_lines, y_lines1, color='gray')
+    ax1.fill_between(x_lines2, y_lines2,y_lines3, color='gray')
+    ax1.fill_between(x_lines4, y_lines4, 100, color='gray')
+    ax1.fill_between([0,1650], -10, 0, color='gray')
     # ax1.scatter(y,x,s=10)
     patches = []
     patches1 = []
@@ -257,12 +261,12 @@ def animate(i):
         #                 fill=True, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)], color = lane_color[int(lane)])))
 
         patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-2), vlen, 4,
-                        fill=True, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)], color = 'k', joinstyle = 'round', 
+                        fill=True, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)], color = 'blue', joinstyle = 'round', 
                         capstyle = 'butt')))
 
     
     patches.append(ax1.add_patch(plt.Rectangle((myvehicle_x_pos-4,myvehicle_y_pos-2), 8, 4, fill=True,
-                        angle = myvehicle_theta, color = 'red', joinstyle = 'bevel' )))
+                        angle = myvehicle_theta, color = 'red', joinstyle = 'round' )))
     count = count +1
     #print("lane {}  below distance {}".format(myvehicle_lane, dist_below_infront))
 
