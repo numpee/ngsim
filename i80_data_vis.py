@@ -32,7 +32,7 @@ data_cut = data[['Vehicle_ID', 'Frame_ID', 'Local_X', 'Local_Y','Lane_ID', 'v_Le
 data_cut = data_cut.loc[data_cut['Vehicle_ID']%2!=0]
 sorted_frame = data_cut.sort_values(by=['Frame_ID'])
 sorted_np = sorted_frame.values
-sorted_np = sorted_np[20000:60000,:]         # Omit data upto 100*1000ms = 100s
+sorted_np = sorted_np[40000:90000,:]         # Omit data upto 100*1000ms = 100s
 sorted_id = data_cut.values
 
 # init array of sliced values, by frame number
@@ -166,16 +166,6 @@ myvehicle_lane = currentLane(myvehicle_y_pos)
 
 print("Initialization Finished!")
 
-#def updateVel(x,y,theta,vel):
-#    if (y < 40):
-#        theta = 5
-#    else:
-#        theta =  0
-#    vel = vel
-#    theta = theta
-#    return vel, theta
-
-
 def animate(i):
     global count; global myvehicle_x_pos; global myvehicle_vel; global myvehicle_y_pos; global myvehicle_theta
     timestep = 0.1
@@ -209,12 +199,35 @@ def animate(i):
     
     # ax.clear()
     ax1.clear()
-    plt.axhline(y=12-2, color='white', linestyle = '--')
-    plt.axhline(y=24-2, color='white', linestyle = '--')
-    plt.axhline(y=36-2, color='white', linestyle = '--')
-    plt.axhline(y=48-2, color='white', linestyle = '--')
-    plt.axhline(y=60-2, color='white', linestyle = '--')
-    plt.axhline(y=72-2, color='white', linestyle = '--')
+    x_lines = [0,421]
+    y_lines = [73,73]
+    x_lines1 = [421,0]
+    y_lines1 = [73+6.6, 73+21]
+    plt.plot(x_lines, y_lines, '-w', LineWidth=1.5)
+    # x_lines1 = [0,834]
+    # y_lines1 = [73+38,73]
+    plt.plot(x_lines1, y_lines1, '-w', linestyle ='-', LineWidth = 1.5)
+    x_lines2 = [421, 421+146]
+    y_lines2= [73,73]
+    x_lines3=[421,421+146]
+    y_lines3=[73+6.6,73]
+    plt.plot(x_lines2,y_lines2, '-w', linestyle='--', LineWidth = 1.5)
+    plt.plot(x_lines3,y_lines3, '-w', linestyle='--', LineWidth = 1.5)
+
+    x_lines4 = [0, 421, 421+146, 986,1650]
+    y_lines4= [73+40, 73+6.6+12,72+12,73, 73]
+    plt.plot(x_lines4, y_lines4, '-w', LineWidth = 1.5)
+
+    x_lines5 = [986, 1650]
+
+
+    plt.axhline(y=0, color='white', linestyle ='-', LineWidth = 1.5)
+    plt.axhline(y=12, color='white', linestyle = '--')
+    plt.axhline(y=24, color='white', linestyle = '--')
+    plt.axhline(y=36, color='white', linestyle = '--')
+    plt.axhline(y=48, color='white', linestyle = '--')
+    plt.axhline(y=60, color='white', linestyle = '--')
+    # plt.axhline(y=72, color='white', linestyle = '--')
     #ax.imshow(img, extent = [-300,300,0,1500])
     # ax.set_autoscaley_on(False)
     # ax.set_autoscalex_on(False)
@@ -223,10 +236,10 @@ def animate(i):
     # ax.scatter(y,x, s = 10)
 
     # set autoscale off, set x,y axis
-    ax1.set_autoscaley_on(False)
-    ax1.set_autoscalex_on(False)
-    ax1.set_xlim([200,1500])
-    ax1.set_ylim([0,80])
+    ax1.set_autoscaley_on(True)
+    ax1.set_autoscalex_on(True)
+    ax1.set_xlim([0,1650])
+    ax1.set_ylim([-10,100])
     ax1.set_facecolor('gray')
     # ax1.scatter(y,x,s=10)
     patches = []
@@ -243,12 +256,13 @@ def animate(i):
         # patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-vwid/2), vlen, vwid,
         #                 fill=True, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)], color = lane_color[int(lane)])))
 
-        patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-vwid/2), vlen, vwid,
-                        fill=True, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)], color = 'k')))
+        patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-2), vlen, 4,
+                        fill=True, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)], color = 'k', joinstyle = 'round', 
+                        capstyle = 'butt')))
 
     
-    patches.append(ax1.add_patch(plt.Rectangle((myvehicle_x_pos,myvehicle_y_pos), 8, 4, fill=True,
-                        angle = myvehicle_theta, color = 'red' )))
+    patches.append(ax1.add_patch(plt.Rectangle((myvehicle_x_pos-4,myvehicle_y_pos-2), 8, 4, fill=True,
+                        angle = myvehicle_theta, color = 'red', joinstyle = 'bevel' )))
     count = count +1
     #print("lane {}  below distance {}".format(myvehicle_lane, dist_below_infront))
 
