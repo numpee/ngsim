@@ -6,6 +6,7 @@ import matplotlib.patches as patches
 import math
 import time
 import os, sys
+from matplotlib.transforms import Affine2D
 
 #COMMENT IF NOT SAVING VIDEO
 #ff_path = os.path.join('C:/Program Files/', 'ImageMagick', 'ffmpeg.exe')
@@ -53,31 +54,39 @@ def laneBoundaries(lane):
     below_lower = (lane-1)*12
     return above_upper, above_lower, current_lower, below_lower
 
-
+#LOGIC TO FIND DISTANCES
 def findDistances(mycar_x, mycar_y, other_x, other_y, mycar_lane):
+    # mycar_x, mycar_y are x y position of my car
+    # other_x, other_y is the dataset, which contains x y position of other cars at the same time
+
+    # Find lane boundary values w.r.t the lane of my car. Ex, lane =3, then find y boundaries of lane 4, 3 and 2
     above_upper, above_lower, current_lower, below_lower = laneBoundaries(mycar_lane)
     
+    # init all distances to 0
     dist_above_infront = dist_current_infront = dist_below_infront = \
     dist_above_behind = dist_current_behind = dist_below_behind = 0
     
-    #find indexes of corresponding lanes
+    #find indexes of cars in specific lanes from the dataset. np.where returns index values of the datset
     index_above = np.where((other_y<above_upper)&(other_y>=above_lower))[0]
     index_current = np.where((other_y<above_lower)&(other_y>=current_lower))[0]
     index_below = np.where((other_y<current_lower)&(other_y>=below_lower))[0]
     
-    #extract x values of corresponding lanes
+    # Using the indexes, create an array of x_values of above, current and below lane
     x_above = other_x[index_above]
     x_current = other_x[index_current]
     x_below = other_x[index_below]
     
     #subract by current x values, then find minimum distance
-    x_above_infront = x_above[x_above>mycar_x]        # get rid of zeros
+
+    # NUMPY MASKING. ONLY LEAVES VALUES THAT MATCH THE CONDITION
+    x_above_infront = x_above[x_above>mycar_x]       # Numpy masking 
     if (x_above_infront.size != 0):
-        dist_above_infront = np.min(x_above_infront) - mycar_x
+        dist_above_infront = np.min(x_above_infront) - mycar_x  # find minimum, then subtract by mycar_x
     x_above_behind = x_above[x_above<mycar_x]       # find behind values
     if (x_above_behind.size != 0):
-        dist_above_behind = mycar_x - np.max(x_above_behind)
+        dist_above_behind = mycar_x - np.max(x_above_behind)    # find maximum of behind, then distance between mycar and this car
     
+    #same as above
     x_current_infront = x_current[x_current>mycar_x]
     if (x_current_infront.size != 0):        
         dist_current_infront = np.min(x_current_infront) - mycar_x
@@ -105,6 +114,9 @@ def createWayPoint(vehicle_x, vehicle_y, target_lane, lookahead):
     target_x = math.sqrt(lookahead**2 - (target_y-vehicle_y)**2) + vehicle_x
     return target_x, target_y    
 
+# LOGIC TO CHANGE LANE
+# This function takes as input the distance values of surrounding cars
+# outputs velocity and theta values
 def changeLane(current_vel, y_pos, x_pos, lane, dist_above_infront,
                dist_current_infront, dist_below_infront, dist_above_behind,
                dist_current_behind, dist_below_behind):
@@ -148,6 +160,14 @@ def changeLane(current_vel, y_pos, x_pos, lane, dist_above_infront,
     #print(target_x, target_y)
     return current_vel, theta
     
+def prediction():
+    ''' 
+    INPUT TENSORFLOW PREDICTION CODE HERE
+    '''
+    vel =0
+    theta = 0
+    return vel, theta
+
 
 # set figure size
 fig = plt.figure(figsize=(27,3))
@@ -170,9 +190,6 @@ def animate(i):
     global count; global myvehicle_x_pos; global myvehicle_vel; global myvehicle_y_pos; global myvehicle_theta
     timestep = 0.1
     global myvehicle_lane
-
-    # update vehicle velocity and theta
-    #myvehicle_vel, myvehicle_theta = updateVel(myvehicle_x_pos, myvehicle_y_pos, myvehicle_theta, myvehicle_vel)
     
     # Slice relevant information by frame number
     x = sliced[i][:,2]
@@ -186,6 +203,8 @@ def animate(i):
     dist_above_infront, dist_current_infront, dist_below_infront, dist_above_behind, dist_current_behind, dist_below_behind \
     = findDistances(myvehicle_x_pos, myvehicle_y_pos, y, x, myvehicle_lane)
     
+    # UPDATE MYVEHICLE_VEL and MYVEHICLE_THETA using changelane function
+    # or when prediction, using prediction() function
     myvehicle_vel, myvehicle_theta = changeLane(myvehicle_vel, myvehicle_y_pos, myvehicle_x_pos,
                                                 myvehicle_lane, dist_above_infront,dist_current_infront,
                                                 dist_below_infront, dist_above_behind, dist_current_behind,
@@ -245,6 +264,10 @@ def animate(i):
     ax1.fill_between(x_lines2, y_lines2,y_lines3, color='gray')
     ax1.fill_between(x_lines4, y_lines4, 100, color='gray')
     ax1.fill_between([0,1650], -10, 0, color='gray')
+    rot = Affine2D().rotate_deg(90)
+
+
+
     # ax1.scatter(y,x,s=10)
     patches = []
     patches1 = []
@@ -276,6 +299,7 @@ def animate(i):
 # Animate at interval of 100ms
 ani = animation.FuncAnimation(fig, animate, frames = range(2,30000), interval=100, blit=True)
 #FFwriter = animation.FFMpegWriter()
+
 plt.show()
 #ani.save('video.mp4', writer =FFwriter)
 
