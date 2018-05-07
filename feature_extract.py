@@ -91,6 +91,7 @@ for i in range(0,num_data):
     vehicle_y = y_p[i]
     frame = data_np[i,1]
     lane = lane_num[i]
+    velocity = v[i]
 
     # The next two lines collect data for surrounding cars at that specific time step.
     # Procedure: 1) List all vehicles in that frame 2) Leave vehicles with greater y value
@@ -124,9 +125,9 @@ for i in range(0,num_data):
             di2 = vehicle_y-features['y_position'][index2]
             ve2 = features['velocity'][index2]
         di5 = 0
-        ve6 = 0
+        ve6 = velocity
         di6 = 0
-        ve6 = 0
+        ve6 = velocity
         if not infront_lower.empty:
             index3 = infront_lower['y_position'].idxmin()
             di3 = abs(features['y_position'][index3]-vehicle_y)
@@ -155,9 +156,30 @@ for i in range(0,num_data):
             ve6 = features['velocity'][index6]
         di3 = 0
         di4 = 0
-        ve3 = 0
-        ve4 = 0
-    
+        ve3 = velocity
+        ve4 = velocity
+
+    elif lane == 6:
+        if not infront_same.empty:
+            index1 = infront_same['y_position'].idxmin()    
+            di1 = features['y_position'][index1]-vehicle_y
+            ve1 = features['velocity'][index1]
+        if not behind_same.empty:
+            index2 = behind_same['y_position'].idxmax()
+            di2 = vehicle_y-features['y_position'][index2]
+            ve2 = features['velocity'][index2]
+        di5 = 0
+        di6 = 0
+        ve5 = velocity
+        ve6 = velocity
+        if not infront_lower.empty:
+            index3 = infront_lower['y_position'].idxmin()
+            di3 = abs(features['y_position'][index3]-vehicle_y)
+            ve3 = features['velocity'][index3]
+        if not behind_lower.empty:
+            index4= behind_lower['y_position'].idxmax()
+            di4 = abs(features['y_position'][index4]-vehicle_y)
+            ve4 = features['velocity'][index4]
     else:
 
         if not infront_same.empty:
