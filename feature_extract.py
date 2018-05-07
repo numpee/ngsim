@@ -41,7 +41,7 @@ for z in range(0,len(sliced)):
     # Finding orientation in radians
     for count in range(len(x_pos)):
         if lane[count] == 7:
-            d0.append(abs( (18/721) * y_pos + x_pos + 18)/ (np.sqrt((18/721)**2 + (1))))
+            d0.append(abs( (18/721) * y_pos[count] + x_pos[count] + 18)/ (np.sqrt((18/721)**2 + (1))))
         else:
             d0.append(x_pos[count]%12)      #calculate distance between from lane
         
