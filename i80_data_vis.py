@@ -30,7 +30,7 @@ data = pd.read_csv(filepath)
 data_cut = data[['Vehicle_ID', 'Frame_ID', 'Local_X', 'Local_Y','Lane_ID', 'v_Length', 'v_Width']]
 
 #reduce size
-data_cut = data_cut.loc[data_cut['Vehicle_ID']%2!=0]
+data_cut = data_cut.loc[data_cut['Vehicle_ID']%3!=0]
 sorted_frame = data_cut.sort_values(by=['Frame_ID'])
 sorted_np = sorted_frame.values
 sorted_np = sorted_np[40000:90000,:]         # Omit data upto 100*1000ms = 100s
@@ -48,10 +48,21 @@ def currentLane(y):
 
 # return lane boundaries of upper, current, and lower lanes w.r.t my car
 def laneBoundaries(lane):
-    above_upper = (lane+2)*12
-    above_lower = (lane+1)*12
-    current_lower = (lane)*12
-    below_lower = (lane-1)*12
+    if (lane ==  6):
+        above_upper = (lane+1)*12
+        above_lower = (lane+1)*12
+        current_lower = (lane)*12
+        below_lower = (lane-1)*12
+    elif (lane == 1):
+        above_upper = (lane+2)*12
+        above_lower = (lane+1)*12
+        current_lower = (lane)*12
+        below_lower = (lane)*12
+    else:
+        above_upper = (lane+2)*12
+        above_lower = (lane+1)*12
+        current_lower = (lane)*12
+        below_lower = (lane-1)*12
     return above_upper, above_lower, current_lower, below_lower
 
 #LOGIC TO FIND DISTANCES
@@ -106,7 +117,7 @@ def findDistances(mycar_x, mycar_y, other_x, other_y, mycar_lane):
 #create and follow waypoint
 def followWayPoint(vehicle_x, vehicle_y, target_x, target_y):
     theta = math.atan2(target_y - vehicle_y, target_x - vehicle_x)
-    print("Y: {},\t X: {}".format((target_y), (target_x)))
+    # print("Y: {},\t X: {}".format((target_y), (target_x)))
     return math.degrees(theta)
 
 def createWayPoint(vehicle_x, vehicle_y, target_lane, lookahead):
@@ -170,7 +181,7 @@ def prediction():
 
 
 # set figure size
-fig = plt.figure(figsize=(27,3))
+fig = plt.figure(figsize=(27,20))
 #ax = fig.add_axes([0,0,1,1],frameon=False)
 # ax = fig.add_subplot(2,1,2)
 
@@ -193,7 +204,16 @@ def animate(i):
     
     # Slice relevant information by frame number
     x = sliced[i][:,2]
+   
+    
     y = sliced[i][:,3]
+    x = np.array(x)
+    y = np.array(y)
+    theta = np.radians(30)
+    rot = np.array([[np.cos(theta), np.sin(theta), 0], [-np.sin(theta), np.cos(theta), 0], [0, 0, 1]])
+    pos = np.vstack((y,x))
+    pos = np.vstack((pos, np.zeros(len(x))))
+    rotate = np.matmul(rot, pos)
     names = sliced[i][:,0]
     lane_label = sliced[i][:,4]
     vehicle_length = sliced[i][:,5]
@@ -214,38 +234,66 @@ def animate(i):
     # Update position based on velocity
     myvehicle_x_pos = timestep * math.cos(math.radians(myvehicle_theta))*myvehicle_vel + myvehicle_x_pos
     myvehicle_y_pos = timestep * math.sin(math.radians(myvehicle_theta)) * myvehicle_vel + myvehicle_y_pos
-
+    
+    # ADD ROTATION
+    myvehicle_pos = np.matmul(rot, np.vstack((myvehicle_x_pos, myvehicle_y_pos, 0)))
     
     # ax.clear()
     ax1.clear()
     x_lines = [0,421]
-    y_lines = [73,73]
+    y_lines = [73,73]       #lane 6
     x_lines1 = [0,421]
-    y_lines1 = [73+21, 73+6.6]
-    plt.plot(x_lines, y_lines, '-w', LineWidth=1.5)
-    # x_lines1 = [0,834]
-    # y_lines1 = [73+38,73]
-    plt.plot(x_lines1, y_lines1, '-w', linestyle ='-', LineWidth = 1.5)
-    x_lines2 = [421, 421+146]
-    y_lines2= [73,73]
-    x_lines3=[421,421+146]
-    y_lines3=[73+6.6,73]
-    plt.plot(x_lines2,y_lines2, '-w', linestyle='--', LineWidth = 1.5)
-    plt.plot(x_lines3,y_lines3, '-w', linestyle='--', LineWidth = 1.5)
+    y_lines1 = [73+21, 73+6.6]  #incoming lane 7
+    x_lines2 = [421, 421+146]   
+    y_lines2= [73,73]       #dotted line 1
+    x_lines3=[421,421+146]  
+    y_lines3=[73+6.6,73]    # dotted line 2
+    x_lines4 = [0, 421, 421+146, 986,2000]
+    y_lines4= [73+40, 73+6.6+12,72+12,73, 73]  #outside line
+    lines = np.matmul(rot, np.vstack((x_lines, y_lines, np.zeros(2))))
+    lines1 = np.matmul(rot, np.vstack((x_lines1, y_lines1, np.zeros(2))))
+    lines2 = np.matmul(rot, np.vstack((x_lines2, y_lines2, np.zeros(2))))
+    lines3 = np.matmul(rot, np.vstack((x_lines3, y_lines3, np.zeros(2))))
+    lines4 = np.matmul(rot, np.vstack((x_lines4, y_lines4, np.zeros(5))))
 
-    x_lines4 = [0, 421, 421+146, 986,1650]
-    y_lines4= [73+40, 73+6.6+12,72+12,73, 73]
-    plt.plot(x_lines4, y_lines4, '-w', LineWidth = 1.5)
+
+    plt.plot(lines[0], lines[1], '-w', LineWidth=1.5)
+    plt.plot(lines1[0], lines1[1], '-w', linestyle ='-', LineWidth = 1.5)
+    plt.plot(lines2[0],lines2[1], '-w', linestyle='--', LineWidth = 1.5)
+    plt.plot(lines3[0],lines3[1], '-w', linestyle='--', LineWidth = 1.5)
+
+    plt.plot(lines4[0], lines4[1], '-w', LineWidth = 1.5)
 
     x_lines5 = [986, 1650]
 
+    lane1 = np.array([[-30, 2000], [0,0], [0,0]])
+    lane2 = np.array([[-30, 2000], [12,12], [0,0]])
+    lane3 = np.array([[-30, 2000], [24,24], [0,0]])
+    lane4 = np.array([[-30, 2000], [36,36], [0,0]])
+    lane5 = np.array([[-30, 2000], [48,48], [0,0]])
+    lane6 = np.array([[-30, 2000], [60,60], [0,0]])
+    
+    rot_lane1 = np.matmul(rot, lane1)
+    rot_lane2 = np.matmul(rot, lane2)
+    rot_lane3 = np.matmul(rot, lane3)
+    rot_lane4 = np.matmul(rot, lane4)
+    rot_lane5 = np.matmul(rot, lane5)
+    rot_lane6 = np.matmul(rot, lane6)
 
-    plt.axhline(y=0, color='white', linestyle ='-', LineWidth = 1.5)
-    plt.axhline(y=12, color='white', linestyle = '--')
-    plt.axhline(y=24, color='white', linestyle = '--')
-    plt.axhline(y=36, color='white', linestyle = '--')
-    plt.axhline(y=48, color='white', linestyle = '--')
-    plt.axhline(y=60, color='white', linestyle = '--')
+    plt.plot(rot_lane1[0],rot_lane1[1], '-w', linestyle='-', LineWidth = 1.5)
+    plt.plot(rot_lane2[0],rot_lane2[1], '-w', linestyle='--', LineWidth = 1.5)
+    plt.plot(rot_lane3[0],rot_lane3[1], '-w', linestyle='--', LineWidth = 1.5)
+    plt.plot(rot_lane4[0],rot_lane4[1], '-w', linestyle='--', LineWidth = 1.5)
+    plt.plot(rot_lane5[0],rot_lane5[1], '-w', linestyle='--', LineWidth = 1.5)
+    plt.plot(rot_lane6[0],rot_lane6[1], '-w', linestyle='--', LineWidth = 1.5)
+    
+    # plt.axhline(y=0, color='white', linestyle ='-', LineWidth = 1.5)
+    # plt.axhline(y=12, color='white', linestyle = '--')
+    # plt.axhline(y=24, color='white', linestyle = '--')
+    # plt.axhline(y=36, color='white', linestyle = '--')
+    # plt.axhline(y=48, color='white', linestyle = '--')
+    # plt.axhline(y=60, color='white', linestyle = '--')
+
     # plt.axhline(y=72, color='white', linestyle = '--')
     #ax.imshow(img, extent = [-300,300,0,1500])
     # ax.set_autoscaley_on(False)
@@ -258,14 +306,15 @@ def animate(i):
     ax1.set_autoscaley_on(True)
     ax1.set_autoscalex_on(True)
     ax1.set_xlim([0,1650])
-    ax1.set_ylim([-10,100])
-    ax1.set_facecolor('black')
-    ax1.fill_between(x_lines, y_lines, y_lines1, color='gray')
-    ax1.fill_between(x_lines2, y_lines2,y_lines3, color='gray')
-    ax1.fill_between(x_lines4, y_lines4, 100, color='gray')
-    ax1.fill_between([0,1650], -10, 0, color='gray')
-    rot = Affine2D().rotate_deg(90)
+    ax1.set_ylim([-0,-1000])
+    ax1.set_facecolor('#708090')
 
+    
+    ax1.fill_between(lines[0], lines[1], lines1[1], color='black')
+    ax1.fill_between(lines2[0], lines2[1],lines3[1], color='black')
+    ax1.fill_between(lines4[0], lines4[1], 100, color='black')
+    # ax1.fill_between([0,2000], -10, 0, color='black')
+    ax1.fill_between(rot_lane1[0], rot_lane1[1], -2000, color = 'black')
 
 
     # ax1.scatter(y,x,s=10)
@@ -275,21 +324,26 @@ def animate(i):
     # ax1.scatter(y,x, s = 50, marker = "s")
 
     # unzip by category, create rectangle for each car by frame
-    for x_cent, y_cent, lane, vlength, vwidth in zip(x,y,lane_label,vehicle_length, vehicle_width):
+    for y_cent, x_cent, lane, vlength, vwidth in zip(rotate[0],rotate[1],lane_label,vehicle_length, vehicle_width):
         # print(x_cent, y_cent)
         vlen = vlength*0.75
         vwid = vwidth*0.75
         # colored vehicles
         # patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-vwid/2), vlen, vwid,
         #                 fill=True, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)], color = lane_color[int(lane)])))
-
-        patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-2), vlen, 4,
-                        fill=True, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)], color = 'blue', joinstyle = 'round', 
-                        capstyle = 'butt')))
+        if lane != 7:
+            patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-2), vlen, 4,
+                            fill=True, angle=-30, linewidth = 2, edgecolor = lane_color[int(lane)], color = '#ff007f', joinstyle = 'round', 
+                            capstyle = 'butt')))
+        else: 
+            patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-2), vlen, 4,
+                            fill=True, angle=-30, linewidth = 2, edgecolor = lane_color[int(lane)], color = 'black', joinstyle = 'round', 
+                            capstyle = 'butt')))
+            
 
     
-    patches.append(ax1.add_patch(plt.Rectangle((myvehicle_x_pos-4,myvehicle_y_pos-2), 8, 4, fill=True,
-                        angle = myvehicle_theta, color = 'red', joinstyle = 'round' )))
+    # patches.append(ax1.add_patch(plt.Rectangle((myvehicle_pos[0]-4,myvehicle_pos[1]-2), 8, 4, fill=True,
+    #                     angle = myvehicle_theta-30, color = 'blue', joinstyle = 'round' )))
     count = count +1
     #print("lane {}  below distance {}".format(myvehicle_lane, dist_below_infront))
 
