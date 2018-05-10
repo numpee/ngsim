@@ -7,6 +7,7 @@ import math
 import time
 import os, sys
 from matplotlib.transforms import Affine2D
+import matplotlib.lines as mlines
 
 #COMMENT IF NOT SAVING VIDEO
 #ff_path = os.path.join('C:/Program Files/', 'ImageMagick', 'ffmpeg.exe')
@@ -170,6 +171,8 @@ def changeLane(current_vel, y_pos, x_pos, lane, dist_above_infront,
         
     #print(target_x, target_y)
     return current_vel, theta
+
+# def changeLane()
     
 def prediction():
     ''' 
@@ -218,6 +221,25 @@ def animate(i):
     lane_label = sliced[i][:,4]
     vehicle_length = sliced[i][:,5]
     vehicle_width = sliced[i][:,6]
+    vehicle_id = sliced[i][:,0]
+    current_frame = sliced[i][0,1]
+    
+    x_future = []
+    y_future = []
+    # look 10 steps ahead
+    for count, j in enumerate(vehicle_id):
+        idx = np.where((sliced[i+10][:,0]==j))[0]
+        print(idx)
+        if len(sliced[i+10][idx,3])!=0:
+            x_future.append(sliced[i+10][idx,3][0])
+            y_future.append(sliced[i+10][idx,2][0])
+        else:
+            x_future.append(y[count])
+            y_future.append(x[count])
+        
+    print(x_future)
+    print(y)
+    print("length of future: {}, length of current: {}".format(len(x_future), len(y)))
     
     myvehicle_lane = currentLane(myvehicle_y_pos)
     dist_above_infront, dist_current_infront, dist_below_infront, dist_above_behind, dist_current_behind, dist_below_behind \
@@ -286,21 +308,6 @@ def animate(i):
     plt.plot(rot_lane4[0],rot_lane4[1], '-w', linestyle='--', LineWidth = 1.5)
     plt.plot(rot_lane5[0],rot_lane5[1], '-w', linestyle='--', LineWidth = 1.5)
     plt.plot(rot_lane6[0],rot_lane6[1], '-w', linestyle='--', LineWidth = 1.5)
-    
-    # plt.axhline(y=0, color='white', linestyle ='-', LineWidth = 1.5)
-    # plt.axhline(y=12, color='white', linestyle = '--')
-    # plt.axhline(y=24, color='white', linestyle = '--')
-    # plt.axhline(y=36, color='white', linestyle = '--')
-    # plt.axhline(y=48, color='white', linestyle = '--')
-    # plt.axhline(y=60, color='white', linestyle = '--')
-
-    # plt.axhline(y=72, color='white', linestyle = '--')
-    #ax.imshow(img, extent = [-300,300,0,1500])
-    # ax.set_autoscaley_on(False)
-    # ax.set_autoscalex_on(False)
-    # ax.set_xlim([200,330])
-    # ax.set_ylim([0,100])
-    # ax.scatter(y,x, s = 10)
 
     # set autoscale off, set x,y axis
     ax1.set_autoscaley_on(True)
@@ -319,12 +326,11 @@ def animate(i):
 
     # ax1.scatter(y,x,s=10)
     patches = []
-    patches1 = []
     lane_color = ["white", "red", "orange", "yellow", "green", "blue", "black", "pink"]
     # ax1.scatter(y,x, s = 50, marker = "s")
 
     # unzip by category, create rectangle for each car by frame
-    for y_cent, x_cent, lane, vlength, vwidth in zip(rotate[0],rotate[1],lane_label,vehicle_length, vehicle_width):
+    for y_cent, x_cent, lane, vlength, vwidth, v_id in zip(rotate[0],rotate[1],lane_label,vehicle_length, vehicle_width, vehicle_id):
         # print(x_cent, y_cent)
         vlen = vlength*0.75
         vwid = vwidth*0.75
@@ -332,18 +338,27 @@ def animate(i):
         # patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-vwid/2), vlen, vwid,
         #                 fill=True, angle=0, linewidth = 2, edgecolor = lane_color[int(lane)], color = lane_color[int(lane)])))
         if lane != 7:
-            patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-2), vlen, 4,
+            patches.append(ax1.add_patch(plt.Rectangle((y_cent-10/2, x_cent), 10, 4,
                             fill=True, angle=-30, linewidth = 2, edgecolor = lane_color[int(lane)], color = '#ff007f', joinstyle = 'round', 
                             capstyle = 'butt')))
         else: 
-            patches.append(ax1.add_patch(plt.Rectangle((y_cent-vlen/2, x_cent-2), vlen, 4,
+            patches.append(ax1.add_patch(plt.Rectangle((y_cent-10/2, x_cent), 10, 4,
                             fill=True, angle=-30, linewidth = 2, edgecolor = lane_color[int(lane)], color = 'black', joinstyle = 'round', 
                             capstyle = 'butt')))
+        idx = np.where((sliced[i+10][:,0]==v_id))[0]
+        x_future = sliced[i+10][idx,3]
+        y_future = sliced[i+10][idx,2]
+        
+        if (len(x_future)!=0):
+            future_pos = np.vstack((x_future[0], y_future[0], 0))
+            future_pos = np.matmul(rot, future_pos)
+            # print("x current: {}, x_future, {}".format(y_cent, future_pos[0][0]))
+            # print("y current: {}, y_future: {} ".format(x_cent, future_pos[1][0]))
+            l = mlines.Line2D([y_cent, future_pos[0][0]], [x_cent, future_pos[1][0]])
+            patches.append(ax1.add_line(l))
             
-
-    
-    # patches.append(ax1.add_patch(plt.Rectangle((myvehicle_pos[0]-4,myvehicle_pos[1]-2), 8, 4, fill=True,
-    #                     angle = myvehicle_theta-30, color = 'blue', joinstyle = 'round' )))
+    patches.append(ax1.add_patch(plt.Rectangle((myvehicle_pos[0]-4,myvehicle_pos[1]-2), 8, 4, fill=True,
+                        angle = myvehicle_theta-30, color = 'blue', joinstyle = 'round' )))
     count = count +1
     #print("lane {}  below distance {}".format(myvehicle_lane, dist_below_infront))
 

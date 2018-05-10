@@ -125,7 +125,7 @@ for i in range(0,num_data):
             di2 = vehicle_y-features['y_position'][index2]
             ve2 = features['velocity'][index2]
         di5 = 0
-        ve6 = velocity
+        ve5 = velocity
         di6 = 0
         ve6 = velocity
         if not infront_lower.empty:
@@ -206,7 +206,7 @@ for i in range(0,num_data):
             index4= behind_lower['y_position'].idxmax()
             di4 = abs(features['y_position'][index4]-vehicle_y)
             ve4 = features['velocity'][index4]
-
+ 
     # append all values to list.
     d1.append(di1); d2.append(di2); d3.append(di3); d4.append(di4); d5.append(di5); d6.append(di6);
     v1.append(ve1); v2.append(ve2); v3.append(ve3); v4.append(ve4); v5.append(ve5); v6.append(ve6);
@@ -214,7 +214,25 @@ for i in range(0,num_data):
     # Track progress during run time. 
     if i%100 ==0:
         print('Currently at i = {}'.format(i))
+    if (i!=0) and (i%1000) ==0:
+        print("d1: ", len(d1))
+        print("d2: ", len(d2))
 
+        print("d3: ", len(d3))
+        print("d4: ", len(d4))
+        print("d5: ", len(d5))
+        print("d6: ", len(d6))
+        print("v1: ", len(v1))
+        print("v2: ", len(v2))
+        print("v3: ", len(v3))
+        print("v4: ", len(v4))
+        print("v5: ", len(v5))
+        print("v6: ", len(v6))
+
+
+        # features= features.assign(d1 = d1, d2=d2,d3=d3,d4=d4,d5=d5,d6=d6,v1=v1,v2=v2,v3=v3,v4=v4,v5=v5,v6=v6)
+        # features.to_csv('features_redone_lane_new.csv')
+        # print("saving file...")
 # Export to CSV file. Data can be accessed in pandas using the d1~d6, v1~v6 headers.
 features= features.assign(d1 = d1, d2=d2,d3=d3,d4=d4,d5=d5,d6=d6,v1=v1,v2=v2,v3=v3,v4=v4,v5=v5,v6=v6)
-features.to_csv('features_redone_lane7.csv')
+features.to_csv('features_redone_lane_new_final.csv')
